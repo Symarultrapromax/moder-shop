@@ -1,5 +1,4 @@
-// Зашифрованный пароль (md5 от "admin123")
-const ENCRYPTED_PASSWORD = "21232f297a57a5a743894a0e4a801fc3";
+const ENCRYPTED_PASSWORD = "a3f295ecec18f6887b756fb51e496078";
 
 // Функции для основной формы
 function openForm(role) {
