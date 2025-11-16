@@ -1,102 +1,207 @@
-const express = require('express');
-const path = require('path');
+// Зашифрованный пароль (md5 от "admin123")
+const ENCRYPTED_PASSWORD = "21232f297a57a5a743894a0e4a801fc3";
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-// Секретный ключ для доступа (замени на свой)
-const ADMIN_SECRET = "mysimarsecret123";
-
-// Хранилище заявок
-let applications = [];
-
-app.use(express.json());
-app.use(express.static(path.join(__dirname, '../public')));
-
-// Главная страница для игроков
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/index.html'));
-});
-
-// Админ-панель (только для тебя)
-app.get('/admin-panel', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '..', 'public', 'admin-panel.html'));
-});
-
-// API для получения заявок (только с секретным ключом)
-app.get('/api/applications', (req, res) => {
-    const secret = req.query.secret;
+// Функции для основной формы
+function openForm(role) {
+    const form = document.getElementById('applicationForm');
+    const roleTitle = document.getElementById('roleTitle');
+    const selectedRole = document.getElementById('selectedRole');
     
-    if (secret === ADMIN_SECRET) {
-        res.json(applications);
-    } else {
-        res.status(403).json({ error: 'Доступ запрещен' });
-    }
-});
-
-// API для изменения статуса заявки
-app.post('/api/application/:id/status', (req, res) => {
-    const { secret, status } = req.body;
-    
-    if (secret !== ADMIN_SECRET) {
-        return res.status(403).json({ error: 'Доступ запрещен' });
-    }
-    
-    const { id } = req.params;
-    
-    applications = applications.map(app => 
-        app.id == id ? { ...app, status } : app
-    );
-    
-    res.json({ success: true });
-});
-
-// Прием заявок от игроков
-app.post('/api/submit-application', (req, res) => {
-    const { nickname, discord, gamepassId, message, role } = req.body;
-    
-    const newApplication = {
-        id: Date.now(),
-        nickname,
-        discord,
-        gamepassId,
-        message,
-        role,
-        status: 'pending', // pending, approved, rejected
-        date: new Date().toLocaleString('ru-RU'),
-        price: getRolePrice(role)
+    const roleNames = {
+        'moderator': 'Модератор',
+        'senior_moderator': 'Старший Модератор', 
+        'administrator': 'Администратор'
     };
     
-    applications.push(newApplication);
+    roleTitle.textContent = roleNames[role];
+    selectedRole.value = role;
     
-    console.log('📨 НОВАЯ ЗАЯВКА Community Simar:');
-    console.log('👤 Никнейм:', nickname);
-    console.log('💬 Discord:', discord);
-    console.log('📝 Сообщение:', message);
-    console.log('🛡️ Роль:', role);
-    console.log('💰 Цена:', getRolePrice(role) + ' Robux');
-    console.log('⏰ Время:', newApplication.date);
-    console.log('-----------------------------------');
-    
-    res.json({ 
-        success: true, 
-        message: 'Заявка отправлена! Мы свяжемся с тобой в Discord.' 
-    });
-});
-
-// Цены для ролей
-function getRolePrice(role) {
-    const prices = {
-        'moderator': 459,
-        'senior_moderator': 899,
-        'administrator': 4999
-    };
-    return prices[role] || 0;
+    form.style.display = 'flex';
 }
 
-app.listen(PORT, () => {
-    console.log(`🚀 Community Simar запущен на порту ${PORT}`);
-    console.log(`🎮 Для игроков: http://localhost:${PORT}/`);
-    console.log(`👑 Твоя админка: http://localhost:${PORT}/admin-panel`);
-    console.log(`🔐 Секретный ключ: ${ADMIN_SECRET}`);
+function closeForm() {
+    document.getElementById('applicationForm').style.display = 'none';
+    document.getElementById('applicationFormElement').reset();
+}
+
+// Обработка отправки формы заявки
+document.getElementById('applicationFormElement').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        nickname: document.getElementById('nickname').value,
+        discord: document.getElementById('discord').value,
+        message: document.getElementById('message').value,
+        role: document.getElementById('selectedRole').value
+    };
+    
+    try {
+        const response = await fetch('/api/submit-application', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        if (response.ok) {
+            alert('Заявка успешно отправлена! Мы свяжемся с вами через Discord.');
+            closeForm();
+        } else {
+            alert('Ошибка при отправке заявки. Попробуйте еще раз.');
+        }
+    } catch (error) {
+        alert('Ошибка соединения. Проверьте интернет и попробуйте еще раз.');
+    }
 });
+
+// Закрытие формы по клику вне её
+document.getElementById('applicationForm').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeForm();
+    }
+});
+
+// Функции для админ-панели
+function openAdminPopup() {
+    document.getElementById('adminPopup').style.display = 'flex';
+}
+
+function closeAdminPopup() {
+    document.getElementById('adminPopup').style.display = 'none';
+    document.getElementById('adminPassword').value = '';
+}
+
+function checkAdminPassword() {
+    const password = document.getElementById('adminPassword').value;
+    if (md5(password) === ENCRYPTED_PASSWORD) {
+        closeAdminPopup();
+        openAdminPanel();
+    } else {
+        alert('Неверный пароль!');
+    }
+}
+
+function openAdminPanel() {
+    document.getElementById('adminPanel').style.display = 'block';
+    loadAdminApplications();
+}
+
+function closeAdminPanel() {
+    document.getElementById('adminPanel').style.display = 'none';
+}
+
+// Загрузка заявок для админа
+async function loadAdminApplications() {
+    try {
+        const response = await fetch('/api/applications?secret=admin123');
+        const applications = await response.json();
+        displayAdminApplications(applications);
+        updateAdminStats(applications);
+    } catch (error) {
+        console.error('Ошибка загрузки заявок:', error);
+        alert('Ошибка загрузки заявок');
+    }
+}
+
+function displayAdminApplications(applications) {
+    const container = document.getElementById('adminApplicationsList');
+    
+    if (applications.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #666;">Заявок пока нет</p>';
+        return;
+    }
+    
+    container.innerHTML = applications.map(app => `
+        <div class="application-card ${app.status}">
+            <div class="application-header">
+                <div class="application-info">
+                    <h3>👤 ${app.nickname}</h3>
+                    <div class="application-meta">
+                        <p><strong>Роль:</strong> ${getRoleName(app.role)}</p>
+                        <p><strong>Discord:</strong> ${app.discord}</p>
+                        <p><strong>Дата:</strong> ${app.date}</p>
+                        <p><strong>Сообщение:</strong> ${app.message}</p>
+                    </div>
+                </div>
+                <div>
+                    <span class="status-badge status-${app.status}">
+                        ${getStatusText(app.status)}
+                    </span>
+                </div>
+            </div>
+            <div class="application-actions">
+                <button class="btn-status btn-approve" onclick="updateApplicationStatus(${app.id}, 'approved')">
+                    ✅ Принять
+                </button>
+                <button class="btn-status btn-reject" onclick="updateApplicationStatus(${app.id}, 'rejected')">
+                    ❌ Отклонить
+                </button>
+                ${app.status !== 'pending' ? `
+                    <button class="btn-status btn-pending" onclick="updateApplicationStatus(${app.id}, 'pending')">
+                        ⏳ В ожидание
+                    </button>
+                ` : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+function updateAdminStats(applications) {
+    const total = applications.length;
+    const pending = applications.filter(app => app.status === 'pending').length;
+    const approved = applications.filter(app => app.status === 'approved').length;
+    const rejected = applications.filter(app => app.status === 'rejected').length;
+    
+    document.getElementById('totalApplications').textContent = total;
+    document.getElementById('pendingApplications').textContent = pending;
+    document.getElementById('approvedApplications').textContent = approved;
+    document.getElementById('rejectedApplications').textContent = rejected;
+}
+
+async function updateApplicationStatus(applicationId, newStatus) {
+    try {
+        const response = await fetch(`/api/application/${applicationId}/status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                status: newStatus,
+                secret: 'admin123'
+            })
+        });
+        
+        if (response.ok) {
+            loadAdminApplications();
+        } else {
+            alert('Ошибка обновления статуса');
+        }
+    } catch (error) {
+        console.error('Ошибка обновления статуса:', error);
+        alert('Ошибка обновления статуса');
+    }
+}
+
+function getRoleName(role) {
+    const roles = {
+        'moderator': '👮 Модератор',
+        'senior_moderator': '🛡️ Старший Модератор',
+        'administrator': '👑 Администратор'
+    };
+    return roles[role] || role;
+}
+
+function getStatusText(status) {
+    const statuses = {
+        'pending': '⏳ Ожидает',
+        'approved': '✅ Принята',
+        'rejected': '❌ Отклонена'
+    };
+    return statuses[status] || status;
+}
+
+// Простая MD5 функция
+function md5(input) {
+    return CryptoJS.MD5(input).toString();
+}

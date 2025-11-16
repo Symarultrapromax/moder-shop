@@ -5,8 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Community Simar</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </head>
 <body>
+    <!-- Скрытая кнопка админа -->
+    <button id="adminToggle" class="admin-toggle" onclick="openAdminPopup()">🔧</button>
+
     <header>
         <div class="container">
             <h1>Community Simar</h1>
@@ -78,6 +82,55 @@
                     <button type="button" class="btn-cancel" onclick="closeForm()">Отмена</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Попап ввода пароля для админа -->
+    <div id="adminPopup" class="admin-popup">
+        <div class="admin-popup-content">
+            <h3>🔐 Вход для админа</h3>
+            <input type="password" id="adminPassword" placeholder="Введите пароль">
+            <div class="admin-popup-buttons">
+                <button onclick="checkAdminPassword()">Войти</button>
+                <button onclick="closeAdminPopup()">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Админ-панель -->
+    <div id="adminPanel" class="admin-panel">
+        <div class="admin-container">
+            <div class="admin-header">
+                <h2>👑 Панель администратора Community Simar</h2>
+                <button onclick="closeAdminPanel()" class="admin-close-btn">❌ Закрыть</button>
+            </div>
+            
+            <div class="admin-stats">
+                <div class="stat-card">
+                    <h3>Всего заявок</h3>
+                    <span id="totalApplications">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Ожидают</h3>
+                    <span id="pendingApplications">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Приняты</h3>
+                    <span id="approvedApplications">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Отклонены</h3>
+                    <span id="rejectedApplications">0</span>
+                </div>
+            </div>
+
+            <div class="admin-controls">
+                <button onclick="loadAdminApplications()" class="btn-refresh">🔄 Обновить</button>
+            </div>
+
+            <div id="adminApplicationsList" class="applications-list">
+                <!-- Заявки будут здесь -->
+            </div>
         </div>
     </div>
 
