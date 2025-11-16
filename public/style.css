@@ -203,7 +203,7 @@ header p {
     border-radius: 5px;
     cursor: pointer;
     z-index: 1001;
-    opacity: 0.3;
+    opacity: 0.7;
     transition: opacity 0.3s ease;
 }
 
@@ -249,6 +249,7 @@ header p {
     display: flex;
     gap: 1rem;
     justify-content: center;
+    margin-top: 1rem;
 }
 
 .admin-popup-buttons button {
@@ -305,36 +306,7 @@ header p {
     cursor: pointer;
 }
 
-.admin-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 2rem;
-}
-
-.stat-card {
-    background: #f8f9fa;
-    padding: 1.5rem;
-    border-radius: 10px;
-    text-align: center;
-    border-left: 4px solid #764ba2;
-}
-
-.stat-card h3 {
-    font-size: 0.9rem;
-    color: #666;
-    margin-bottom: 0.5rem;
-}
-
-.stat-card span {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #764ba2;
-}
-
 .admin-controls {
-    display: flex;
-    gap: 1rem;
     margin-bottom: 2rem;
 }
 
@@ -367,14 +339,7 @@ header p {
 }
 
 .application-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: start;
     margin-bottom: 1rem;
-}
-
-.application-info {
-    flex: 1;
 }
 
 .application-info h3 {
@@ -396,6 +361,8 @@ header p {
     border-radius: 15px;
     font-size: 0.8rem;
     font-weight: bold;
+    display: inline-block;
+    margin-bottom: 1rem;
 }
 
 .status-pending { background: #fff3cd; color: #856404; }
@@ -405,7 +372,6 @@ header p {
 .application-actions {
     display: flex;
     gap: 0.5rem;
-    margin-top: 1rem;
 }
 
 .btn-status {
@@ -433,21 +399,7 @@ header p {
         font-size: 2rem;
     }
     
-    .admin-header {
-        flex-direction: column;
-        gap: 1rem;
-        text-align: center;
-    }
-    
-    .admin-stats {
-        grid-template-columns: 1fr 1fr;
-    }
-    
-    .application-header {
-        flex-direction: column;
-    }
-    
     .application-actions {
-        justify-content: center;
+        flex-direction: column;
     }
 }
