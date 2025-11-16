@@ -1,0 +1,12 @@
+{
+  "name": "moder-shop",
+  "version": "1.0.0",
+  "description": "Магазин Community Symar",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

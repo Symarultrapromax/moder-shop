@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Simar</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Community Simar</h1>
+            <p>Эксклюзивные товары и возможности</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="products">
+            <div class="product-card">
+                <h3>👮 Модератор</h3>
+                <p class="price">459 Robux</p>
+                <ul>
+                    <li>Базовые команды модерации</li>
+                    <li>Возможность кикать игроков</li>
+                    <li>Роль в дискорде</li>
+                </ul>
+                <button class="btn-apply" onclick="openForm('moderator')">Подать заявку</button>
+            </div>
+
+            <div class="product-card">
+                <h3>🛡️ Старший Модератор</h3>
+                <p class="price">899 Robux</p>
+                <ul>
+                    <li>Все возможности модератора</li>
+                    <li>Права мута и бана</li>
+                    <li>Доступ к логам чата</li>
+                </ul>
+                <button class="btn-apply" onclick="openForm('senior_moderator')">Подать заявку</button>
+            </div>
+
+            <div class="product-card">
+                <h3>👑 Администратор</h3>
+                <p class="price">4999 Robux</p>
+                <ul>
+                    <li>Полный контроль над сервером</li>
+                    <li>Все административные команды</li>
+                    <li>Кастом роль в дискорде</li>
+                </ul>
+                <button class="btn-apply" onclick="openForm('administrator')">Подать заявку</button>
+            </div>
+        </section>
+    </main>
+
+    <div id="applicationForm" class="form-overlay">
+        <div class="form-container">
+            <h2>Заявка на <span id="roleTitle">Модератор</span></h2>
+            <form id="applicationFormElement">
+                <input type="hidden" id="selectedRole" name="role">
+                
+                <div class="form-group">
+                    <label for="nickname">Никнейм в роблокс:</label>
+                    <input type="text" id="nickname" name="nickname" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="discord">Дискорд пинг:</label>
+                    <input type="text" id="discord" name="discord" required>
+                    <small>Вы должны быть в дискорд канале Community Symar или заявка будет отклонена</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Почему вы хотите получить эту роль? ваш возраст?</label>
+                    <textarea id="message" name="message" rows="4" required></textarea>
+                </div>
+
+                <div class="form-buttons">
+                    <button type="submit" class="btn-submit">Отправить заявку</button>
+                    <button type="button" class="btn-cancel" onclick="closeForm()">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
